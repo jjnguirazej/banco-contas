@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: contas-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/contas}
+    username: ${DB_USER:contas}
+    password: ${DB_PASSWORD:contas}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+
+server:
+  error:
+    include-stacktrace: never
+
+app:
+  jwt:
+    # Chave apenas para desenvolvimento. Em produção, definir JWT_SECRET (Base64, 64 bytes).
+    secret: ${JWT_SECRET:PJTuEDzknxLHkJRJbnY3r2VHL+c7mh0KsB0SKcD2jsm/knPd8a5OFiMz0i0DdyBcgxP23epjccUpd8Z1f8YAYA==}
+    ttl: ${JWT_TTL:PT1H}
+    issuer: contas-api
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:Admin@12345}
+  seed:
+    demo: ${SEED_DEMO:true}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200}
+  timezone: Africa/Maputo
+  security:
+    login:
+      max-attempts: ${LOGIN_MAX_ATTEMPTS:5}
+      block-duration: ${LOGIN_BLOCK_DURATION:PT15M}
+  limits:
+    transfer:
+      per-operation: ${LIMIT_PER_OPERATION:100000.00}
+      daily: ${LIMIT_DAILY:250000.00}
+  statement:
+    pdf-max-movements: 5000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: contas
+      POSTGRES_USER: contas
+      POSTGRES_PASSWORD: contas
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U contas -d contas"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/contas
+      DB_USER: contas
+      DB_PASSWORD: contas
+      REDIS_HOST: redis
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@12345}
+      SEED_DEMO: "true"
+      CORS_ORIGINS: http://localhost:4200
+      LOGIN_MAX_ATTEMPTS: "5"
+      LOGIN_BLOCK_DURATION: PT15M
+      LIMIT_PER_OPERATION: "100000.00"
+      LIMIT_DAILY: "250000.00"
+    ports:
+      - "8080:8080"
+
+  web:
+    build: ./frontend
+    depends_on:
+      - api
+    ports:
+      - "4200:80"
+
+volumes:
+  db-data:
