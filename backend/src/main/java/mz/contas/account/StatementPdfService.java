@@ -34,7 +34,7 @@ import org.springframework.stereotype.Service;
 public class StatementPdfService {
 
     private static final Color INK = new Color(0x17, 0x29, 0x2A);
-    private static final Color GREEN = new Color(0x0F, 0x5A, 0x4C);
+    private static final Color BRAND = new Color(0xC8, 0x10, 0x2E);
     private static final Color MUTED = new Color(0x58, 0x6A, 0x67);
     private static final Color SOFT = new Color(0xDC, 0xEB, 0xE5);
     private static final Color LINE = new Color(0xC9, 0xD3, 0xCF);
@@ -81,7 +81,7 @@ public class StatementPdfService {
         doc.setFooter(footer);
 
         doc.open();
-        doc.add(new Paragraph("Contas", font(11, Font.BOLD, GREEN)));
+        doc.add(new Paragraph("Contas", font(11, Font.BOLD, BRAND)));
         Paragraph title = new Paragraph("Extracto de conta", font(20, Font.BOLD, INK));
         title.setSpacingAfter(10);
         doc.add(title);
