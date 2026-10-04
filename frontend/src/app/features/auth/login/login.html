@@ -1,1 +1,38 @@
-<p>login works!</p>
+<main class="login">
+  <section class="login-panel">
+    <p class="wordmark">Pagina Inicial</p>
+    <h1>Entrar</h1>
+
+    @if (motivo() === 'expirou') {
+      <p class="notice">A sessão terminou. Entre novamente para continuar.</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label class="field">
+        <span>Utilizador</span>
+        <input formControlName="utilizador" autocomplete="username" autofocus />
+        <small class="hint">Clientes entram com o NUIT.</small>
+        @if (form.controls.utilizador.touched && form.controls.utilizador.invalid) {
+          <small class="field-error">Preencha o utilizador.</small>
+        }
+      </label>
+
+      <label class="field">
+        <span>Palavra-passe</span>
+        <input type="password" formControlName="palavraPasse" autocomplete="current-password" />
+        @if (form.controls.palavraPasse.touched && form.controls.palavraPasse.invalid) {
+          <small class="field-error">Preencha a palavra-passe.</small>
+        }
+      </label>
+
+      @if (error()) {
+        <p class="alert" role="alert">{{ error() }}</p>
+      }
+
+      <button class="btn btn-primary btn-block" type="submit" [disabled]="loading()">
+        {{ loading() ? 'A entrar…' : 'Entrar' }}
+      </button>
+    </form>
+
+  </section>
+</main>
