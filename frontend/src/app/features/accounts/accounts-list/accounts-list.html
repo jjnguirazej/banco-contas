@@ -1,1 +1,59 @@
-<p>accounts-list works!</p>
+<div class="page-head">
+  <div>
+    <h1>Contas</h1>
+    @if (page(); as p) {
+      <p class="lede">{{ p.totalElementos }} {{ p.totalElementos === 1 ? 'conta registada' : 'contas registadas' }}</p>
+    }
+  </div>
+  <a class="btn btn-primary" routerLink="/contas/nova">Criar conta</a>
+</div>
+
+@if (error()) {
+  <p class="alert" role="alert">{{ error() }}</p>
+}
+
+@if (page(); as p) {
+  @if (p.conteudo.length === 0) {
+    <div class="empty">
+      <p>Ainda não há contas. Crie a primeira para começar.</p>
+      <a class="btn btn-primary" routerLink="/contas/nova">Criar conta</a>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Número</th>
+            <th scope="col">Titular</th>
+            <th scope="col">NUIT</th>
+            <th scope="col">Tipo</th>
+            <th scope="col" class="num">Saldo (MZN)</th>
+            <th scope="col">Aberta em</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of p.conteudo; track a.numeroConta) {
+            <tr class="row-link" tabindex="0" (click)="open(a)" (keydown.enter)="open(a)">
+              <td class="tnum">{{ a.numeroConta }}</td>
+              <td>{{ a.nomeCliente }}</td>
+              <td class="tnum">{{ a.nuit }}</td>
+              <td>{{ a.tipo | label }}</td>
+              <td class="num">{{ a.saldo | money }}</td>
+              <td>{{ a.criadaEm | when: 'data' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (p.totalPaginas > 1) {
+      <nav class="pager" aria-label="Paginação">
+        <button class="btn btn-quiet" type="button" [disabled]="p.pagina === 0 || loading()" (click)="load(p.pagina - 1)">Anterior</button>
+        <span>Página {{ p.pagina + 1 }} de {{ p.totalPaginas }}</span>
+        <button class="btn btn-quiet" type="button" [disabled]="p.pagina + 1 >= p.totalPaginas || loading()" (click)="load(p.pagina + 1)">Seguinte</button>
+      </nav>
+    }
+  }
+} @else if (loading()) {
+  <p class="muted">A carregar contas…</p>
+}
