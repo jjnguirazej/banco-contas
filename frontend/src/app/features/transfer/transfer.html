@@ -1,1 +1,107 @@
-<p>transfer works!</p>
+<div class="page-head">
+  <div>
+    <h1>Transferir</h1>
+    <p class="lede">
+      @switch (step()) {
+        @case ('preencher') { Indique as contas e o valor. }
+        @case ('rever') { Confirme os dados antes de transferir. }
+        @case ('concluida') { Transferência concluída. }
+      }
+    </p>
+  </div>
+</div>
+
+<ol class="steps" aria-label="Passos">
+  <li [class.current]="step() === 'preencher'">Dados</li>
+  <li [class.current]="step() === 'rever'">Confirmação</li>
+  <li [class.current]="step() === 'concluida'">Comprovativo</li>
+</ol>
+
+@if (error()) {
+  <p class="alert" role="alert">{{ error() }}</p>
+}
+
+@switch (step()) {
+  @case ('preencher') {
+    <form class="narrow" [formGroup]="form" (ngSubmit)="review()" novalidate>
+      <label class="field">
+        <span>Conta de origem</span>
+        @if (auth.isAdmin()) {
+          <input formControlName="contaOrigem" inputmode="numeric" autocomplete="off" />
+        } @else {
+          <select formControlName="contaOrigem">
+            @for (a of myAccounts(); track a.numeroConta) {
+              <option [value]="a.numeroConta">{{ a.numeroConta }} · saldo {{ a.saldo | money }} MZN</option>
+            }
+          </select>
+        }
+        @if (invalid('contaOrigem')) { <small class="field-error">Indique a conta de origem.</small> }
+      </label>
+
+      <label class="field">
+        <span>Conta de destino</span>
+        <input formControlName="contaDestino" inputmode="numeric" autocomplete="off" />
+        @if (invalid('contaDestino')) { <small class="field-error">Indique a conta de destino.</small> }
+      </label>
+
+      <label class="field">
+        <span>Valor (MZN)</span>
+        <input type="number" formControlName="valor" min="0.01" step="0.01" inputmode="decimal" />
+        @if (invalid('valor')) { <small class="field-error">O valor tem de ser positivo.</small> }
+        @if (limits(); as l) {
+          <small class="hint">
+            Limite por operação {{ l.limitePorOperacao | money }} MZN · disponível hoje
+            <strong class="tnum">{{ l.disponivelHoje | money }} MZN</strong> de {{ l.limiteDiario | money }}
+          </small>
+        }
+      </label>
+
+      <label class="field">
+        <span>Descrição</span>
+        <input formControlName="descricao" maxlength="200" autocomplete="off" />
+        @if (invalid('descricao')) { <small class="field-error">Indique uma descrição.</small> }
+      </label>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Rever transferência</button>
+      </div>
+    </form>
+  }
+
+  @case ('rever') {
+    <section class="receipt narrow">
+      <dl>
+        <dt>De</dt><dd class="tnum">{{ form.value.contaOrigem }}</dd>
+        <dt>Para</dt><dd class="tnum">{{ form.value.contaDestino }}</dd>
+        <dt>Descrição</dt><dd>{{ form.value.descricao }}</dd>
+      </dl>
+      <p class="receipt-amount tnum">{{ form.value.valor | money }} <small>MZN</small></p>
+      <div class="actions">
+        <button class="btn btn-primary" type="button" (click)="confirm()" [disabled]="sending()">
+          {{ sending() ? 'A transferir…' : 'Confirmar transferência' }}
+        </button>
+        <button class="btn btn-quiet" type="button" (click)="back()" [disabled]="sending()">Alterar dados</button>
+      </div>
+    </section>
+  }
+
+  @case ('concluida') {
+    @if (result(); as r) {
+      <section class="receipt narrow done">
+        <p class="receipt-amount tnum">{{ r.valor | money }} <small>MZN</small></p>
+        <dl>
+          <dt>De</dt><dd class="tnum">{{ r.contaOrigem }}</dd>
+          <dt>Para</dt><dd class="tnum">{{ r.contaDestino }}</dd>
+          <dt>Descrição</dt><dd>{{ r.descricao }}</dd>
+          <dt>Data e hora</dt><dd class="tnum">{{ r.dataHora | when }}</dd>
+          <dt>Referência</dt><dd class="tnum ref">{{ r.referencia }}</dd>
+        </dl>
+        <div class="actions">
+          <a class="btn btn-primary" [routerLink]="['/contas', r.contaOrigem]">Ver extracto</a>
+          <button class="btn btn-quiet" type="button" (click)="newTransfer()">Nova transferência</button>
+        </div>
+      </section>
+    }
+  }
+}
+
