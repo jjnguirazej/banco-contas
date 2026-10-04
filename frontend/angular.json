@@ -50,7 +50,7 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "@fontsource-variable/instrument-sans/wdth.css", "src/styles.css"
             ]
           },
           "configurations": {
@@ -67,6 +67,14 @@
                   "maximumError": "8kB"
                 }
               ],
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": true
+                  },
+                  "fonts": false
+                },
               "outputHashing": "all"
             },
             "development": {
@@ -85,6 +93,9 @@
             },
             "development": {
               "buildTarget": "frontend:build:development"
+            },
+            "options": {
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
