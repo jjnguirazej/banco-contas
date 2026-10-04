@@ -1,1 +1,101 @@
-<p>account-detail works!</p>
+<div class="page-head">
+  <div>
+    <a class="back" [routerLink]="auth.homePath()">{{ auth.isAdmin() ? 'Contas' : 'As minhas contas' }}</a>
+    <h1 class="tnum">Conta {{ numero() }}</h1>
+    @if (account(); as a) {
+      <p class="lede">{{ a.nomeCliente }} · NUIT {{ a.nuit }} · {{ a.tipo | label }}</p>
+    }
+  </div>
+  @if (account()) {
+    <a class="btn btn-primary" routerLink="/transferir" [queryParams]="{ origem: numero() }">Transferir desta conta</a>
+  }
+</div>
+
+@if (criada()) {
+  <p class="success" role="status">Conta criada com sucesso.</p>
+}
+@if (error()) {
+  <p class="alert" role="alert">{{ error() }}</p>
+}
+
+@if (account(); as a) {
+  <section class="balance" aria-label="Saldo disponível">
+    <span class="balance-label">Saldo disponível</span>
+    <span class="balance-figure tnum">{{ a.saldo | money }}</span>
+    <span class="balance-currency">MZN</span>
+  </section>
+
+  <section class="statement">
+    <div class="statement-head">
+      <h2>Extracto</h2>
+      <form class="filter" [formGroup]="filter" (ngSubmit)="loadStatement(0)">
+        <label>De <input type="date" formControlName="de" /></label>
+        <label>Até <input type="date" formControlName="ate" /></label>
+        <button class="btn btn-quiet" type="submit">Filtrar</button>
+        @if (filter.value.de || filter.value.ate) {
+          <button class="btn btn-quiet" type="button" (click)="clearFilter()">Limpar</button>
+        }
+        <button class="btn btn-primary" type="button" (click)="downloadPdf()" [disabled]="downloading()"
+                [title]="filter.value.de || filter.value.ate ? 'PDF do período escolhido' : 'PDF de todo o histórico'">
+          {{ downloading() ? 'A gerar PDF…' : 'Descarregar PDF' }}
+        </button>
+      </form>
+    </div>
+    <p class="hint filter-hint">O PDF usa as datas do filtro. Sem datas, inclui todo o histórico da conta.</p>
+
+    @if (downloadError()) {
+      <p class="alert" role="alert">{{ downloadError() }}</p>
+    }
+
+    @if (statement(); as s) {
+      @if (s.movimentos.conteudo.length === 0) {
+        <p class="empty">Sem movimentos neste período.</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="table ledger">
+            <thead>
+              <tr>
+                <th scope="col">Data e hora</th>
+                <th scope="col">Descrição</th>
+                <th scope="col" class="num">Débito</th>
+                <th scope="col" class="num">Crédito</th>
+                <th scope="col" class="num">Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (m of s.movimentos.conteudo; track $index) {
+                <tr>
+                  <td class="tnum nowrap">{{ m.dataHora | when }}</td>
+                  <td>
+                    <span class="desc">{{ m.descricao }}</span>
+                    @if (m.contaContraparte) {
+                      <span class="desc-meta">
+                        {{ m.tipo | label }} · {{ m.natureza === 'DEBITO' ? 'para' : 'de' }}
+                        <span class="tnum">{{ m.contaContraparte }}</span>
+                      </span>
+                    }
+                  </td>
+                  <td class="num debit">{{ m.natureza === 'DEBITO' ? (m.valor | money) : '' }}</td>
+                  <td class="num credit">{{ m.natureza === 'CREDITO' ? (m.valor | money) : '' }}</td>
+                  <td class="num">{{ m.saldoResultante | money }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (s.movimentos.totalPaginas > 1) {
+          <nav class="pager" aria-label="Paginação do extracto">
+            <button class="btn btn-quiet" type="button" [disabled]="s.movimentos.pagina === 0 || loadingStatement()" (click)="loadStatement(s.movimentos.pagina - 1)">Mais recentes</button>
+            <span>Página {{ s.movimentos.pagina + 1 }} de {{ s.movimentos.totalPaginas }}</span>
+            <button class="btn btn-quiet" type="button" [disabled]="s.movimentos.pagina + 1 >= s.movimentos.totalPaginas || loadingStatement()" (click)="loadStatement(s.movimentos.pagina + 1)">Mais antigos</button>
+          </nav>
+        }
+      }
+    } @else if (loadingStatement()) {
+      <p class="muted">A carregar extracto…</p>
+    }
+  </section>
+} @else if (!error()) {
+  <p class="muted">A carregar conta…</p>
+}
