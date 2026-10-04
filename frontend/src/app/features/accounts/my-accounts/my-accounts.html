@@ -1,1 +1,34 @@
-<p>my-accounts works!</p>
+<div class="page-head">
+  <div>
+    <h1>As minhas contas</h1>
+    <p class="lede">{{ auth.user()?.nome }}</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/transferir">Transferir</a>
+</div>
+
+@if (error()) {
+  <p class="alert" role="alert">{{ error() }}</p>
+}
+
+@if (accounts(); as list) {
+  @if (list.length > 1) {
+    <p class="total">Saldo total <strong class="tnum">{{ total() | money }} MZN</strong></p>
+  }
+  <ul class="account-list">
+    @for (a of list; track a.numeroConta) {
+      <li>
+        <a class="account-line" [routerLink]="['/contas', a.numeroConta]">
+          <span class="account-id">
+            <span class="account-type">{{ a.tipo | label }}</span>
+            <span class="tnum muted">{{ a.numeroConta }}</span>
+          </span>
+          <span class="account-balance tnum">{{ a.saldo | money }} <small>MZN</small></span>
+        </a>
+      </li>
+    } @empty {
+      <li class="empty">Não tem contas associadas. Contacte o banco.</li>
+    }
+  </ul>
+} @else if (!error()) {
+  <p class="muted">A carregar contas…</p>
+}
