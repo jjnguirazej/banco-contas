@@ -85,21 +85,22 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
+      "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
             },
             "development": {
               "buildTarget": "frontend:build:development"
-            },
-            "options": {
-              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
         },
+
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"
         },
