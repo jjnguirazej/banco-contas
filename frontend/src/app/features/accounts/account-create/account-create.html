@@ -1,1 +1,73 @@
-<p>account-create works!</p>
+<div class="page-head">
+  <div>
+    <a class="back" routerLink="/contas">Contas</a>
+    <h1>Nova conta</h1>
+  </div>
+</div>
+
+<form class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <fieldset>
+    <legend>Titular</legend>
+
+    <label class="field">
+      <span>Nome completo</span>
+      <input formControlName="nomeCliente" autocomplete="off" />
+      @if (invalid('nomeCliente')) { <small class="field-error">Indique o nome do titular.</small> }
+      @if (serverErrors()['nomeCliente']) { <small class="field-error">{{ serverErrors()['nomeCliente'] }}</small> }
+    </label>
+
+    <label class="field">
+      <span>NUIT</span>
+      <input formControlName="nuit" inputmode="numeric" maxlength="9" autocomplete="off" />
+      <small class="hint">9 dígitos. Se o NUIT já existir, a conta é aberta para o mesmo titular.</small>
+      @if (invalid('nuit')) { <small class="field-error">O NUIT tem exactamente 9 dígitos.</small> }
+      @if (serverErrors()['nuit']) { <small class="field-error">{{ serverErrors()['nuit'] }}</small> }
+    </label>
+
+    <label class="field">
+      <span>Palavra-passe de acesso do cliente</span>
+      <input type="password" formControlName="palavraPasseCliente" autocomplete="new-password" />
+      <small class="hint">Obrigatória para um titular novo, com pelo menos 8 caracteres. O cliente entra com o NUIT.</small>
+      @if (invalid('palavraPasseCliente')) { <small class="field-error">Use entre 8 e 72 caracteres.</small> }
+      @if (serverErrors()['palavraPasseCliente']) { <small class="field-error">{{ serverErrors()['palavraPasseCliente'] }}</small> }
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Conta</legend>
+
+    <div class="field">
+      <span>Tipo de conta</span>
+      <div class="choice">
+        <label><input type="radio" formControlName="tipo" value="ORDEM" /> À ordem</label>
+        <label><input type="radio" formControlName="tipo" value="POUPANCA" /> Poupança</label>
+      </div>
+    </div>
+
+    <label class="field">
+      <span>Saldo inicial (MZN)</span>
+      <input type="number" formControlName="saldoInicial" min="0" step="0.01" inputmode="decimal" />
+      @if (invalid('saldoInicial')) { <small class="field-error">O saldo inicial não pode ser negativo.</small> }
+      @if (serverErrors()['saldoInicial']) { <small class="field-error">{{ serverErrors()['saldoInicial'] }}</small> }
+    </label>
+
+    <label class="field">
+      <span>Número da conta <em class="optional">opcional</em></span>
+      <input formControlName="numeroConta" inputmode="numeric" maxlength="20" autocomplete="off" />
+      <small class="hint">Deixe em branco para gerar automaticamente.</small>
+      @if (invalid('numeroConta')) { <small class="field-error">Use entre 8 e 20 dígitos.</small> }
+      @if (serverErrors()['numeroConta']) { <small class="field-error">{{ serverErrors()['numeroConta'] }}</small> }
+    </label>
+  </fieldset>
+
+  @if (error()) {
+    <p class="alert form-wide" role="alert">{{ error() }}</p>
+  }
+
+  <div class="actions form-wide">
+    <button class="btn btn-primary" type="submit" [disabled]="saving()">
+      {{ saving() ? 'A criar…' : 'Criar conta' }}
+    </button>
+    <a class="btn btn-quiet" routerLink="/contas">Cancelar</a>
+  </div>
+</form>
