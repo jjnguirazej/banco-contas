@@ -1,1 +1,25 @@
-<p>shell works!</p>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="wordmark" [routerLink]="auth.homePath()">Contas</a>
+
+    <nav aria-label="Principal">
+      @if (auth.isAdmin()) {
+        <a routerLink="/contas" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Contas</a>
+        <a routerLink="/contas/nova" routerLinkActive="active">Nova conta</a>
+      } @else {
+        <a routerLink="/minhas-contas" routerLinkActive="active">As minhas contas</a>
+      }
+      <a routerLink="/transferir" routerLinkActive="active">Transferir</a>
+    </nav>
+
+    <div class="who">
+      <span class="who-name">{{ auth.user()?.nome }}</span>
+      <span class="who-role">{{ auth.isAdmin() ? 'Administrador' : 'Cliente' }}</span>
+      <button class="btn btn-quiet" type="button" (click)="auth.logout()">Sair</button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <router-outlet />
+</main>
