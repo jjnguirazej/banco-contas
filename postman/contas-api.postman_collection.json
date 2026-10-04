@@ -178,7 +178,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nomeCliente\": \"Rui Cossa\",\n  \"nuit\": \"100000003\",\n  \"tipo\": \"POUPANCA\",\n  \"saldoInicial\": 2500.0,\n  \"palavraPasseCliente\": \"Cliente@123\"\n}"
+              "raw": "{\n  \"nomeCliente\": \"Rui Cossa\",\n  \"nuit\": \"100000009\",\n  \"tipo\": \"POUPANCA\",\n  \"saldoInicial\": 2500.0,\n  \"palavraPasseCliente\": \"Cliente@123\"\n}"
             },
             "auth": {
               "type": "bearer",
